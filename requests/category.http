@@ -1,0 +1,42 @@
+### ACCOUNT
+
+### List
+GET /api/admin/category/list HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Add
+POST /api/admin/category/add HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "title": "channel 1"
+}
+
+### Find
+POST /api/admin/category/get/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Update
+POST /api/admin/category/update HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "id": 1,
+    "title": "category 1"
+}
+
+### Remove
+POST /api/admin/category/remove/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Permanently Delete
+POST /api/admin/category/delete/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 

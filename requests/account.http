@@ -1,0 +1,58 @@
+### ACCOUNT
+
+### List
+GET /api/admin/account/list HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Add
+POST /api/admin/account/add HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "username": "test",
+    "email": "test@test.com",
+    "password": "test",
+    "fullname": "test",
+    "level": "user"
+}
+
+### Find
+POST /api/admin/account/find HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "username": "test",
+    "email": "test@test.com"
+}
+
+
+
+### Update
+POST /api/admin/account/update HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "id": 2,
+    "username": "test",
+    "email": "test@test.com",
+    "password": "test",
+    "fullname": "test",
+    "level": "user"
+}
+
+### Remove
+POST /api/admin/account/remove/2 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Permanently Delete
+POST /api/admin/account/delete/2 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 

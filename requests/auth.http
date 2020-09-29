@@ -1,0 +1,48 @@
+### Requests from API
+
+### AUTH
+
+### Login to get token
+POST /api/auth/login HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "test",
+    "rememberMe": false
+}
+
+### Refresh token
+POST /api/auth/refresh-token HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+Authorization: Bearer 
+
+
+### Verify token
+POST /api/auth/verify-token HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+
+### Send Recovery Key
+POST /api/auth/send-recovery-key HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+    "username": "test"
+}
+
+
+### Login with Recovery Key
+POST /api/auth/login-recovery-key HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+    "username": "test",
+    "newPassword": "test",
+    "recoveryKey": "rec"
+}

@@ -1,0 +1,61 @@
+### ACCOUNT
+
+### List
+GET /api/admin/channel/list HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Add
+POST /api/admin/channel/add HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "title": "channel 1"
+}
+
+### Find
+POST /api/admin/channel/get/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Update
+POST /api/admin/channel/update HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "id": 1,
+    "title": "channel 1",
+}
+
+### Remove
+POST /api/admin/channel/remove/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Permanently Delete
+POST /api/admin/channel/delete/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Get Thumbnail
+POST /api/admin/channel/thumbnail/test-1600177653355.png HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+
+### Upload Thumbnail
+POST /api/admin/channel/upload-thumbnail/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.png"
+Content-Type: image/png
+
+< ./files/test.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

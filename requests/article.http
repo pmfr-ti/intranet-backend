@@ -1,0 +1,78 @@
+### ACCOUNT
+
+### List
+GET /api/admin/article/list HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Add
+POST /api/admin/article/add HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "title": "article",
+    "summary": "summary of article",
+    "content": "content of article",
+    "dateStart": "2020-09-15",
+    "dateEnd": null,
+    "tags": "[\"tag 1\", \"tag 2\", \"tag 3\"]",
+    "featured": true,
+    "account": 1,
+    "channel": 1,
+    "category": 1
+}
+
+### Find
+POST /api/admin/article/get/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Update
+POST /api/admin/article/update HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "id": 1,
+    "title": "article",
+    "summary": "summary of article",
+    "content": "content of article",
+    "dateStart": "2020-09-15",
+    "dateEnd": null,
+    "tags": "[\"tag 1\", \"tag 2\", \"tag 3\", \"tag 4\"]",
+    "featured": true,
+    "account": 1,
+    "channel": 1,
+    "category": 1
+}
+
+### Remove
+POST /api/admin/article/remove/2 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Permanently Delete
+POST /api/admin/article/delete/2 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Get Thumbnail
+POST /api/admin/article/thumbnail/test-1600192331589.png HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Upload Thumbnail
+POST /api/admin/article/upload-thumbnail/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.png"
+Content-Type: image/png
+
+< ./files/test.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

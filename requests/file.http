@@ -1,0 +1,60 @@
+### ACCOUNT
+
+### List
+GET /api/admin/file/list HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Add
+POST /api/admin/file/add HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "article": 1,
+    "name": "test",
+    "description": "lorem ipsum dolor sit amet"
+}
+
+### Find
+POST /api/admin/file/get/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Update
+POST /api/admin/file/update HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "id": 1,
+    "article": 1,
+    "name": "test 123",
+    "description": "lorem ipsum dolor sit amet"
+}
+
+### Remove
+POST /api/admin/file/remove/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+### Permanently Delete
+POST /api/admin/file/delete/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+
+
+### Upload Attach
+POST /api/admin/article/upload-attach/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.pdf"
+Content-type: application/pdf
+
+< ./files/test.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
