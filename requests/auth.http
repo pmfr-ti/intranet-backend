@@ -32,7 +32,7 @@ Host: localhost:3000
 Content-Type: application/json
 
 {
-    "username": "test"
+    "username": "testead"
 }
 
 
@@ -42,7 +42,7 @@ Host: localhost:3000
 Content-Type: application/json
 
 {
-    "username": "test",
-    "newPassword": "test",
-    "recoveryKey": "rec"
+    "username": "testead",
+    "newPassword": "test12345",
+    "recoveryKey": "FBLkOzdkkI"
 }

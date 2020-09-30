@@ -168,18 +168,26 @@ export class AuthService {
 
 
     async sendRecoveryKey(username: string): Promise<any> {
-
+        
         const accountAD = await this.ldapService.searchByUsername(username);
+        
+        if (!accountAD) {
+            throw new UnauthorizedException({
+                statusCode: 401,
+                type: "Unauthorized",
+                message: "Não foi possível encontrar a conta"
+            });
+        }
 
         let account: Account = await this.accountService.getActiveUsername(username);
-
+        
         if (!account) {
-            
+        
             const addAccount: AddAccountDTO = Object.assign(new AddAccountDTO, {
                 username: accountAD.username,
                 status: accountAD.isActive() ? 'ativo' : 'desativado'
             });
-
+        
             const newAccount = await this.accountService.addAccount(addAccount);
 
             if (!newAccount) {
@@ -189,14 +197,14 @@ export class AuthService {
                     message: "Não foi possível encontrar a conta"
                 });
             }
-
+        
             account = newAccount;
         }
-
+        
         const updatedAccount: Account = Object.assign(account, {
             status: accountAD.isActive() ? "ativo" : "desativado",
         })
-
+        
         if (!accountAD.isActive()) {
             throw new UnauthorizedException({
                 statusCode: 401,
@@ -204,7 +212,7 @@ export class AuthService {
                 message: "Seu usuário não está regularizado. Contate a Diretoria de TI para mais informações."
             });
         }
-
+        
         if (!accountAD.email) {
             throw new UnauthorizedException({
                 statusCode: 401,
@@ -222,7 +230,7 @@ export class AuthService {
                 message: "Não foi possível gerar uma chave de recuperação"
             });
         }
-
+        
         const mail = {
             to: accountAD.email,
             from: 'noreply@application.com',
