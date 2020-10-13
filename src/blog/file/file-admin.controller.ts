@@ -16,7 +16,7 @@ export class FileController {
 
     constructor(private fileService: FileService) { }
 
-    @Get('list')
+    @Post('list')
     async listFile(@Body() findFile: FindFileDTO): Promise<File[] | null> {
         if (findFile) { return await this.fileService.fetchAll(findFile) }
 

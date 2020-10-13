@@ -16,7 +16,7 @@ export class ChannelController {
 
     constructor(private channelService: ChannelService) { }
 
-    @Get('list')
+    @Post('list')
     async listChannel(@Body() findChannel: FindChannelDTO): Promise<Channel[] | null> {
         if (findChannel) { return await this.channelService.fetchAll(findChannel) }
 

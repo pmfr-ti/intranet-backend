@@ -14,7 +14,7 @@ export class AccountsController {
 
     constructor(private accountsService: AccountsService) { }
 
-    @Get('list')
+    @Post('list')
     async listAccount(): Promise<any | null> {
         return await this.accountsService.fetchAll();
     }

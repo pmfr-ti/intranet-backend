@@ -1,7 +1,7 @@
 ### ACCOUNT
 
 ### List
-GET /api/admin/article/list HTTP/1.1
+POST /api/admin/article/list HTTP/1.1
 Host: localhost:3000
 Authorization: Bearer 
 

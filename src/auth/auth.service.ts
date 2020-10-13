@@ -56,7 +56,7 @@ export class AuthService {
                 });
             }
 
-            return this.createToken(newAccount, accountAD, rememberMe);
+            return JSON.stringify({'token': this.createToken(newAccount, accountAD, rememberMe)});
 
         }
 
@@ -83,7 +83,7 @@ export class AuthService {
             });
         }
 
-        return this.createToken(updatedAccount, accountAD, rememberMe);
+        return JSON.stringify({'token': this.createToken(updatedAccount, accountAD, rememberMe)});
     }
 
     async refresh(expiredToken: string): Promise<string> {
@@ -107,7 +107,7 @@ export class AuthService {
         if (!updatedAccount) {
             throw new UnauthorizedException({
                 statusCode: 401,
-                type: "Unauthorized",
+                type: "Invalid Token",
                 message: "Não foi possível logar"
             });
         }
@@ -115,20 +115,20 @@ export class AuthService {
         if (!updatedAccount.isActive()) {
             throw new UnauthorizedException({
                 statusCode: 401,
-                type: "Unauthorized",
-                message: "Invalid username"
+                type: "Invalid Token",
+                message: "Usuário inválido"
             });
         }
 
         if (!payload.isAllowToRenewal()) {
             throw new UnauthorizedException({
                 statusCode: 401,
-                type: "Unauthorized",
-                message: "Invalid Token"
+                type: "Invalid Token",
+                message: "O token está expirado"
             });
         }
 
-        return this.createToken(updatedAccount, accountAD, payload.remember);
+        return JSON.stringify({'token': this.createToken(updatedAccount, accountAD, payload.remember)});
 
     }
 
@@ -147,7 +147,7 @@ export class AuthService {
         if (!account || !accountAD.isActive()) {
             throw new UnauthorizedException({
                 statusCode: 401,
-                type: "Unauthorized",
+                type: "Invalid Token",
                 message: "Seu usuário não está regularizado. Contate a Diretoria de TI para mais informações."
             });
         }
@@ -155,8 +155,8 @@ export class AuthService {
         if (!payload.isAllowToRenewal()) {
             throw new UnauthorizedException({
                 statusCode: 401,
-                type: "Unauthorized",
-                message: "Invalid Token"
+                type: "Invalid Token",
+                message: "O token está expirado"
             });
         }
 
@@ -245,7 +245,10 @@ export class AuthService {
 
         await this.mailerService.sendMail(mail);
 
-        return updatedAccount;
+        return JSON.stringify({
+            type: 'success',
+            message: 'Email enviado. Por favor, verifique sua caixa de entrada.',
+        });
     }
 
     async loginRecoveryKey(recoveryCredentials: RecoveryCredentialsDTO): Promise<string> {
@@ -303,19 +306,19 @@ export class AuthService {
             await this.mailerService.sendMail(mail);
         }        
 
-        return this.createToken(updatedAccount, accountAD);
+        return JSON.stringify({'token': this.createToken(updatedAccount, accountAD)});
     }
 
     createToken(account: Account, accountAD: AccountLdap, rememberMe = false): string {
         const rnwTimestamp = this.createRenewalTime(rememberMe);
 
         const token = this.jwtService.sign({
-            id: account.id,
-            username: accountAD.username,
-            fullname: accountAD.fullname,
-            email: accountAD.email,
-            remember: rememberMe,
-            rnw: rnwTimestamp
+                id: account.id,
+                username: accountAD.username,
+                fullname: accountAD.fullname,
+                email: accountAD.email,
+                remember: rememberMe,
+                rnw: rnwTimestamp
         });
 
         return token;

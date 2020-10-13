@@ -10,6 +10,9 @@ export class Category {
     @Column(({ type: 'varchar', width: 50 }))
     title: string;
 
+    @Column(({ type: 'varchar', width: 2048 }))
+    url_image;
+
     @Column({ default: 'ativo' })
     status: string;
 

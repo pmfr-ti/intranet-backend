@@ -7,9 +7,6 @@ export class File {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column(({ type: 'int' }))
-    articleId: number;
-
     @Column(({ type: 'varchar', width: 2048 }))
     url: string;
 

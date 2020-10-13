@@ -1,10 +1,12 @@
-import { Controller, Post, Get, Body, Param, UsePipes, ValidationPipe, Logger, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UsePipes, ValidationPipe, Logger, UseGuards, UseInterceptors, UploadedFile, BadRequestException, Res } from '@nestjs/common';
 import { ValidationParametersPipe } from 'src/shared/pipes/validation-parameters.pipe';
 import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 import { AppController } from 'src/app.controller';
 import { CategoryService } from './category.service';
 import { Category } from './entities/category.entity';
 import { AddCategoryDTO, UpdateCategoryDTO, FindCategoryDTO } from './dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { files, categoryThumbnailStorage } from 'src/configs/storage.config';
 
 @Controller('api/admin/category')
 @UseGuards(JwtAuthGuard)
@@ -14,7 +16,7 @@ export class CategoryController {
 
     constructor(private categoryService: CategoryService) { }
 
-    @Get('list')
+    @Post('list')
     async listCategory(@Body() findCategory: FindCategoryDTO): Promise<Category[] | null> {
         if (findCategory) { return await this.categoryService.fetchAll(findCategory) }
 
@@ -24,6 +26,15 @@ export class CategoryController {
     @Post('get/:id')
     async getCategory(@Param('id', ValidationParametersPipe) id: number): Promise<Category> {
         return await this.categoryService.getByID(id);
+    }
+
+    @Post('thumbnail/:id')
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    async getThumbnail(
+        @Param('id', ValidationParametersPipe) id: number,
+        @Res() res
+    ): Promise<any> {
+        return await res.sendFile(id, { root: files.categoryThumbnailDirectory});
     }
 
     @Post('add')
@@ -51,5 +62,21 @@ export class CategoryController {
     @Post('delete/:id')
     async permanentlyDeleteCategory(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
         return await this.categoryService.permanentlyDeleteCategory(id);
+    }
+
+    @Post('upload-thumbnail/:id')
+    @UsePipes(ValidationPipe)
+    @UseInterceptors(FileInterceptor('file', categoryThumbnailStorage))
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    async uploadThumbnail(
+        @Param('id', ValidationParametersPipe) id: number,
+        @UploadedFile() file
+    ): Promise<Category> {
+
+        if (!file || !file.filename) {
+            throw new BadRequestException(`Arquivo inválido`);   
+        }
+
+        return this.categoryService.changeThumbnail(id, file.filename);
     }
 }

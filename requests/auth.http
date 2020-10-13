@@ -8,8 +8,8 @@ Host: localhost:3000
 Content-Type: application/json
 
 {
-    "username": "test",
-    "password": "test",
+    "username": "testead",
+    "password": "teste1234",
     "rememberMe": false
 }
 
@@ -43,6 +43,6 @@ Content-Type: application/json
 
 {
     "username": "testead",
-    "newPassword": "test12345",
+    "newPassword": "teste1234",
     "recoveryKey": "FBLkOzdkkI"
 }

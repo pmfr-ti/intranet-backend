@@ -4,8 +4,9 @@ import path = require('path');
 
 export const files = {
     channelThumbnailDirectory: 'files/channel-thumbnails',
-    attachmentsDirectory: 'files/attachments',
+    categoryThumbnailDirectory: 'files/category-thumbnails',
     articleThumbnailDirectory: 'files/article-thumbnails',
+    attachmentsDirectory: 'files/attachments',
 };
 
 const imageFileFilter = (req, file, callback) => {
@@ -28,6 +29,19 @@ const attachmentsFileFilter = (req, file, callback) => {
 export const channelThumbnailStorage = {
     storage: diskStorage({
         destination: `./${files.channelThumbnailDirectory}`,
+        filename: (req, file, callback) => {
+            const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') +'-'+ Date.now()
+            const extension: string = path.parse(file.originalname).ext;
+
+            callback(null, `${filename}${extension}`)
+        }
+    }),
+    fileFilter: imageFileFilter
+};
+
+export const categoryThumbnailStorage = {
+    storage: diskStorage({
+        destination: `./${files.categoryThumbnailDirectory}`,
         filename: (req, file, callback) => {
             const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') +'-'+ Date.now()
             const extension: string = path.parse(file.originalname).ext;

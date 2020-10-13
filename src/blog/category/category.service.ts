@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { AddCategoryDTO, UpdateCategoryDTO, FindCategoryDTO } from './dto';
+import { FileSystemUtils } from 'src/shared/utils/file-system.utils';
+import { files } from 'src/configs/storage.config';
 
 @Injectable()
 export class CategoryService {
@@ -84,9 +86,21 @@ export class CategoryService {
             });
         }
 
+        await FileSystemUtils.remove(`./${files.categoryThumbnailDirectory}/${categoryFound.url_image}`);
+
         return JSON.stringify({
             "message": "Deletado com sucesso",
             "type": "success",
         });
+    }
+
+    async changeThumbnail(id: number, file: string): Promise<Category> {
+        const category = await this.getByID(id);
+            
+        await FileSystemUtils.remove(`./${files.categoryThumbnailDirectory}/${category.url_image}`);
+
+        category.url_image =  file;
+
+        return await this.updateCategory(category);
     }
 }

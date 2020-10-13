@@ -17,7 +17,7 @@ export class ArticleController {
 
     constructor(private articleService: ArticleService) { }
 
-    @Get('list')
+    @Post('list')
     async listArticle(@Body() findArticle: FindArticleDTO): Promise<Article[] | null> {
         if (findArticle) { return await this.articleService.fetchAll(findArticle) }
 
@@ -34,7 +34,6 @@ export class ArticleController {
     async addArticle(
         @Body() article: AddArticleDTO,
     ): Promise<Article | null> {
-        console.log(article);
         //return null;
         return await this.articleService.addArticle(article);
     }
