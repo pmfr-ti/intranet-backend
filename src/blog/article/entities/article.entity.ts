@@ -20,7 +20,7 @@ export class Article {
     content: string;
 
     @Column(({ type: 'varchar', width: 2048 }))
-    url_image;
+    imageUrl;
 
     @Column(({ type: "date" }))
     dateStart: Date = new Date;

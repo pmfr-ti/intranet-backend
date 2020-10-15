@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FileAdminController } from './file-admin.controller';
+import { ChannelController } from './channel.controller';
 
-describe('FileAdminController', () => {
-  let controller: FileAdminController;
+describe('Channel Controller', () => {
+  let controller: ChannelController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [FileAdminController],
+      controllers: [ChannelController],
     }).compile();
 
-    controller = module.get<FileAdminController>(FileAdminController);
+    controller = module.get<ChannelController>(ChannelController);
   });
 
   it('should be defined', () => {

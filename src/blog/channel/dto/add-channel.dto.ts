@@ -8,7 +8,7 @@ export class AddChannelDTO {
 
     @IsOptional()
     @IsString()
-    url_image: string = null;
+    imageUrl: string = null;
 
     @IsOptional()
     @IsString()

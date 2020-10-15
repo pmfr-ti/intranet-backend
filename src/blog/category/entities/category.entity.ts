@@ -11,7 +11,7 @@ export class Category {
     title: string;
 
     @Column(({ type: 'varchar', width: 2048 }))
-    url_image;
+    imageUrl;
 
     @Column({ default: 'ativo' })
     status: string;

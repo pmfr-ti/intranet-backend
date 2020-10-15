@@ -3,7 +3,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { File } from './entities/file.entity';
-import { FileController } from './file-admin.controller';
+import { FileAdminController } from './file-admin.controller';
+import { FileController } from './file.controller';
 import { FileService } from './file.service';
 
 @Module({
@@ -12,7 +13,7 @@ import { FileService } from './file.service';
     MulterModule.register(),
     AuthModule
   ],
-  controllers: [FileController],
+  controllers: [FileController, FileAdminController],
   providers: [FileService]
 })
 export class FileModule {}

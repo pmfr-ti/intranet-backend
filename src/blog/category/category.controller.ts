@@ -8,9 +8,8 @@ import { AddCategoryDTO, UpdateCategoryDTO, FindCategoryDTO } from './dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { files, categoryThumbnailStorage } from 'src/configs/storage.config';
 
-@Controller('api/admin/category')
-@UseGuards(JwtAuthGuard)
-export class CategoryAdminController {
+@Controller('api/category')
+export class CategoryController {
 
     private logger = new Logger(AppController.name);
 
@@ -28,46 +27,13 @@ export class CategoryAdminController {
         return await this.categoryService.getByID(id);
     }
 
-    @Post('add')
-    @UsePipes(ValidationPipe)
-    async addCategory(
-        @Body() category: AddCategoryDTO,
-    ): Promise<Category | null> {
-        return await this.categoryService.addCategory(category);
-    }
-
-    @Post('update')
-    @UsePipes(ValidationPipe)
-    async updateCategory(
-        @Body() category: UpdateCategoryDTO
-    ): Promise<Category> {
-
-        return await this.categoryService.updateCategory(category);
-    }
-
-    @Post('remove/:id')
-    async removeCategory(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.categoryService.removeCategory(id);
-    }
-
-    @Post('delete/:id')
-    async permanentlyDeleteCategory(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.categoryService.permanentlyDeleteCategory(id);
-    }
-
-    @Post('upload-thumbnail/:id')
-    @UsePipes(ValidationPipe)
-    @UseInterceptors(FileInterceptor('file', categoryThumbnailStorage))
+    @Get('thumbnail/:id')
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    async uploadThumbnail(
+    async getThumbnail(
         @Param('id', ValidationParametersPipe) id: number,
-        @UploadedFile() file
-    ): Promise<Category> {
-
-        if (!file || !file.filename) {
-            throw new BadRequestException(`Arquivo inválido`);   
-        }
-
-        return this.categoryService.changeThumbnail(id, file.filename);
+        @Res() res
+    ): Promise<any> {
+        return await res.sendFile(id, { root: files.categoryThumbnailDirectory});
     }
+
 }

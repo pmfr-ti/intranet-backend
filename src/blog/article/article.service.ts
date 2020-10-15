@@ -90,9 +90,9 @@ export class ArticleService {
     async changeThumbnail(id: number, file: string): Promise<Article> {
         const article = await this.getByID(id);
             
-        await FileSystemUtils.remove(`./${files.articleThumbnailDirectory}/${article.url_image}`);
+        await FileSystemUtils.remove(`./${files.articleThumbnailDirectory}/${article.imageUrl}`);
 
-        article.url_image =  file;
+        article.imageUrl =  file;
 
         return await this.updateArticle(article);
     }

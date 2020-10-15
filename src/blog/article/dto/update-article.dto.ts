@@ -32,7 +32,7 @@ export class UpdateArticleDTO {
 
     @IsOptional()
     @IsString()
-    url_image: string;
+    imageUrl: string;
 
     @IsOptional()
     @IsBoolean()

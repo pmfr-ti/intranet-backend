@@ -86,7 +86,7 @@ export class CategoryService {
             });
         }
 
-        await FileSystemUtils.remove(`./${files.categoryThumbnailDirectory}/${categoryFound.url_image}`);
+        await FileSystemUtils.remove(`./${files.categoryThumbnailDirectory}/${categoryFound.imageUrl}`);
 
         return JSON.stringify({
             "message": "Deletado com sucesso",
@@ -97,9 +97,9 @@ export class CategoryService {
     async changeThumbnail(id: number, file: string): Promise<Category> {
         const category = await this.getByID(id);
             
-        await FileSystemUtils.remove(`./${files.categoryThumbnailDirectory}/${category.url_image}`);
+        await FileSystemUtils.remove(`./${files.categoryThumbnailDirectory}/${category.imageUrl}`);
 
-        category.url_image =  file;
+        category.imageUrl =  file;
 
         return await this.updateCategory(category);
     }

@@ -8,9 +8,9 @@ import { File } from './entities/file.entity';
 import { AddFileDTO, UpdateFileDTO, FindFileDTO } from './dto';
 import { files, fileStorage } from 'src/configs/storage.config';
 
-@Controller('api/admin/file')
+@Controller('api/file')
 @UseGuards(JwtAuthGuard)
-export class FileAdminController {
+export class FileController {
 
     private logger = new Logger(AppController.name);
 
@@ -28,46 +28,13 @@ export class FileAdminController {
         return await this.fileService.getByID(id);
     }
 
-    @Post('add')
-    @UsePipes(ValidationPipe)
-    async addFile(
-        @Body() file: AddFileDTO,
-    ): Promise<File | null> {
-        return await this.fileService.addFile(file);
-    }
-
-    @Post('update')
-    @UsePipes(ValidationPipe)
-    async updateFile(
-        @Body() file: UpdateFileDTO
-    ): Promise<File> {
-
-        return await this.fileService.updateFile(file);
-    }
-
-    @Post('remove/:id')
-    async removeFile(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.fileService.removeFile(id);
-    }
-
-    @Post('delete/:id')
-    async permanentlyDeleteFile(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.fileService.permanentlyDeleteFile(id);
-    }
-
-    @Post('upload-attach/:id')
-    @UsePipes(ValidationPipe)
-    @UseInterceptors(FileInterceptor('file', fileStorage))
+    @Get('thumbnail/:id')
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    async uploadThumbnail(
+    async getThumbnail(
         @Param('id', ValidationParametersPipe) id: number,
-        @UploadedFile() file
-    ): Promise<File> {
-
-        if (!file || !file.filename) {
-            throw new BadRequestException(`Arquivo inválido`);   
-        }
-
-        return this.fileService.changeAttach(id, file.filename);
+        @Res() res
+    ): Promise<any> {
+        return await res.sendFile(id, { root: files.attachmentsDirectory });
     }
+
 }

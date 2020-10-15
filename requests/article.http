@@ -60,7 +60,7 @@ Host: localhost:3000
 Authorization: Bearer 
 
 ### Get Thumbnail
-POST /api/admin/article/thumbnail/test-1600192331589.png HTTP/1.1
+POST /api/article/thumbnail/test-1600192331589.png HTTP/1.1
 Host: localhost:3000
 Authorization: Bearer 
 

@@ -7,10 +7,11 @@ import { ChannelService } from './channel.service';
 import { Channel } from './entities/channel.entity';
 import { AddChannelDTO, UpdateChannelDTO, FindChannelDTO } from './dto';
 import { files, channelThumbnailStorage } from 'src/configs/storage.config';
+import { PaginationDTO } from 'src/shared/dto';
 
 @Controller('api/admin/channel')
 @UseGuards(JwtAuthGuard)
-export class ChannelController {
+export class ChannelAdminController {
 
     private logger = new Logger(AppController.name);
 
@@ -23,18 +24,14 @@ export class ChannelController {
         return await this.channelService.fetchAll({ status: 'ativo' });
     }
 
+    @Post('paginate')
+    async findAllChannel(@Body() searchParams: PaginationDTO): Promise<any | null> {
+        return await this.channelService.paginate(searchParams);
+    }
+
     @Post('get/:id')
     async getChannel(@Param('id', ValidationParametersPipe) id: number): Promise<Channel> {
         return await this.channelService.getByID(id);
-    }
-
-    @Post('thumbnail/:id')
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    async getThumbnail(
-        @Param('id', ValidationParametersPipe) id: number,
-        @Res() res
-    ): Promise<any> {
-        return await res.sendFile(id, { root: files.channelThumbnailDirectory});
     }
 
     @Post('add')

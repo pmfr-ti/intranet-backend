@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { Channel } from './entities/channel.entity';
-import { ChannelController } from './channel-admin.controller';
+import { ChannelAdminController } from './channel-admin.controller';
+import { ChannelController } from './channel.controller';
 import { ChannelService } from './channel.service';
 import { MulterModule } from '@nestjs/platform-express';
 
@@ -12,7 +13,7 @@ import { MulterModule } from '@nestjs/platform-express';
     MulterModule.register(),
     AuthModule
   ],
-  controllers: [ChannelController],
+  controllers: [ChannelController, ChannelAdminController],
   providers: [ChannelService]
 })
 export class ChannelModule { }

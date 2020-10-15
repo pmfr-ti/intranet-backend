@@ -1,8 +1,9 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Channel } from './entities/channel.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { AddChannelDTO, UpdateChannelDTO, FindChannelDTO } from './dto';
+import { PaginationDTO } from 'src/shared/dto/pagination.dto';
 import { FileSystemUtils } from 'src/shared/utils/file-system.utils';
 import { files } from 'src/configs/storage.config';
 
@@ -16,6 +17,31 @@ export class ChannelService {
     async fetchAll(by: FindChannelDTO): Promise<Channel[]> {
         return await this.channelRepository.find({ where: by });
     }
+
+    async paginate(query: PaginationDTO): Promise<any> {
+        const pageSize = query.pageSize || 10
+        const skip = query.skip || 0
+        const filter = query.filter || ''
+        const order = query.sortOrder.toLocaleLowerCase() === 'asc' ? 1: -1;
+        
+        const [data, count] = await this.channelRepository.findAndCount(
+            {
+                where: { 
+                    // id: Like('%' + filter + '%'),
+                    title: Like('%' + filter + '%'),
+                    // imageUrl: Like('%' + filter + '%'),
+                    // createdAt: Like('%' + filter + '%'),
+                    // updatedAt: Like('%' + filter + '%'),
+                },  
+                order: { title: order },
+                take: pageSize,
+                skip: skip
+            }
+        );
+
+        return { data, count }
+    }
+
 
     async getByID(id: number): Promise<Channel>{
         return await this.channelRepository.findOne({ id });
@@ -86,7 +112,7 @@ export class ChannelService {
             });
         }
 
-        await FileSystemUtils.remove(`./${files.channelThumbnailDirectory}/${channelFound.url_image}`);
+        await FileSystemUtils.remove(`./${files.channelThumbnailDirectory}/${channelFound.imageUrl}`);
 
         return JSON.stringify({
             message: 'Deletado com sucesso',
@@ -97,9 +123,9 @@ export class ChannelService {
     async changeThumbnail(id: number, file: string): Promise<Channel> {
         const channel = await this.getByID(id);
             
-        await FileSystemUtils.remove(`./${files.channelThumbnailDirectory}/${channel.url_image}`);
+        await FileSystemUtils.remove(`./${files.channelThumbnailDirectory}/${channel.imageUrl}`);
 
-        channel.url_image =  file;
+        channel.imageUrl =  file;
 
         return await this.updateChannel(channel);
     }

@@ -12,7 +12,7 @@ export class UpdateChannelDTO {
 
     @IsOptional()
     @IsString()
-    url_image: string;
+    imageUrl: string;
 
     @IsOptional()
     @IsString()
