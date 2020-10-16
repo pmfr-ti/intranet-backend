@@ -6,6 +6,7 @@ import { AddChannelDTO, UpdateChannelDTO, FindChannelDTO } from './dto';
 import { PaginationDTO } from 'src/shared/dto/pagination.dto';
 import { FileSystemUtils } from 'src/shared/utils/file-system.utils';
 import { files } from 'src/configs/storage.config';
+import * as moment from 'moment';
 
 @Injectable()
 export class ChannelService {
@@ -19,27 +20,30 @@ export class ChannelService {
     }
 
     async paginate(query: PaginationDTO): Promise<any> {
+        
         const pageSize = query.pageSize || 10
         const skip = query.skip || 0
         const filter = query.filter || ''
-        const order = query.sortOrder.toLocaleLowerCase() === 'asc' ? 1: -1;
-        
+        const orderColumn = query.sort.column || 'id';
+        const orderValue = query.sort.value.toLocaleLowerCase() === 'asc' ? 1: -1
+
         const [data, count] = await this.channelRepository.findAndCount(
             {
-                where: { 
-                    // id: Like('%' + filter + '%'),
-                    title: Like('%' + filter + '%'),
-                    // imageUrl: Like('%' + filter + '%'),
-                    // createdAt: Like('%' + filter + '%'),
-                    // updatedAt: Like('%' + filter + '%'),
-                },  
-                order: { title: order },
+                where: [
+                    { id: Like('%' + filter + '%') },
+                    { title: Like('%' + filter + '%') },
+                    { imageUrl: Like('%' + filter + '%') },
+                    { createdAt: Like('%' + filter + '%') },
+                    { updatedAt: Like('%' + filter + '%') },
+                ],
+                order: { [orderColumn] : orderValue },
                 take: pageSize,
                 skip: skip
             }
         );
 
         return { data, count }
+
     }
 
 

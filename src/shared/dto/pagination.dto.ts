@@ -1,6 +1,9 @@
 export class PaginationDTO {
     filter?: string;
-    sortOrder?: string;
+    sort?: {
+        column?: string;
+        value?: string;
+    };
     pageSize?: number;
     skip?: number;
 }
