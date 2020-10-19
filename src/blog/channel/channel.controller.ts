@@ -7,6 +7,7 @@ import { ChannelService } from './channel.service';
 import { Channel } from './entities/channel.entity';
 import { AddChannelDTO, UpdateChannelDTO, FindChannelDTO } from './dto';
 import { files, channelThumbnailStorage } from 'src/configs/storage.config';
+import { ResDTO } from 'src/shared/dto';
 
 @Controller('api/channel')
 // @UseGuards(JwtAuthGuard)
@@ -24,7 +25,7 @@ export class ChannelController {
     }
 
     @Post('get/:id')
-    async getChannel(@Param('id', ValidationParametersPipe) id: number): Promise<Channel> {
+    async getChannel(@Param('id', ValidationParametersPipe) id: number): Promise<ResDTO> {
         return await this.channelService.getByID(id);
     }
 

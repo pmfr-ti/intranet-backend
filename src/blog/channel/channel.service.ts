@@ -1,12 +1,12 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Channel } from './entities/channel.entity';
-import { Like, Repository } from 'typeorm';
-import { AddChannelDTO, UpdateChannelDTO, FindChannelDTO } from './dto';
-import { PaginationDTO } from 'src/shared/dto/pagination.dto';
-import { FileSystemUtils } from 'src/shared/utils/file-system.utils';
-import { files } from 'src/configs/storage.config';
-import * as moment from 'moment';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Channel } from './entities/channel.entity'
+import { Like, Repository } from 'typeorm'
+import { AddChannelDTO, UpdateChannelDTO, FindChannelDTO } from './dto'
+import { PaginationDTO } from 'src/shared/dto/pagination.dto'
+import { FileSystemUtils } from 'src/shared/utils/file-system.utils'
+import { files } from 'src/configs/storage.config'
+import { ResDTO } from 'src/shared/dto'
 
 @Injectable()
 export class ChannelService {
@@ -16,121 +16,221 @@ export class ChannelService {
     ) { }
 
     async fetchAll(by: FindChannelDTO): Promise<Channel[]> {
-        return await this.channelRepository.find({ where: by });
+        return await this.channelRepository.find({ where: by })
     }
 
     async paginate(query: PaginationDTO): Promise<any> {
-        
+
         const pageSize = query.pageSize || 10
         const skip = query.skip || 0
         const filter = query.filter || ''
-        const orderColumn = query.sort.column || 'id';
-        const orderValue = query.sort.value.toLocaleLowerCase() === 'asc' ? 1: -1
+        const orderColumn = query.sort.column || 'id'
+        const orderValue = query.sort.value.toLocaleLowerCase() === 'asc' ? 1 : -1
+        const status = query.status || 'ativo';
 
         const [data, count] = await this.channelRepository.findAndCount(
             {
                 where: [
-                    { id: Like('%' + filter + '%') },
-                    { title: Like('%' + filter + '%') },
-                    { imageUrl: Like('%' + filter + '%') },
-                    { createdAt: Like('%' + filter + '%') },
-                    { updatedAt: Like('%' + filter + '%') },
+                    { id: Like('%' + filter + '%'), status: status },
+                    { title: Like('%' + filter + '%'), status: status },
+                    { imageUrl: Like('%' + filter + '%'), status: status },
+                    { createdAt: Like('%' + filter + '%'), status: status },
+                    { updatedAt: Like('%' + filter + '%'), status: status }
                 ],
-                order: { [orderColumn] : orderValue },
+                order: { [orderColumn]: orderValue },
                 take: pageSize,
                 skip: skip
             }
-        );
+        )
 
         return { data, count }
+    }
+
+    async getByID(id: number): Promise<ResDTO> {
+        const channel = await this.channelRepository.findOne({ id })
+
+        if (!channel) {
+            return {
+                message: 'Canal não encontrado',
+                type: 'error'
+            };
+        }
+
+        return {
+            type: 'success',
+            message: 'Operação realizada com sucesso',
+            data: channel
+        };
+
 
     }
 
+    async addChannel(channel: AddChannelDTO): Promise<ResDTO> {
 
-    async getByID(id: number): Promise<Channel>{
-        return await this.channelRepository.findOne({ id });
-    }
+        const { title } = channel
 
-    async addChannel(channel: AddChannelDTO): Promise<Channel> {
-
-        const { title } = channel;
-
-        const isChannelFound = await this.channelRepository.findOne({ title });
+        const isChannelFound = await this.channelRepository.findOne({ title })
 
         if (isChannelFound) {
-            throw new BadRequestException(`O Canal "${title}" já está cadastrado`);
+            return {
+                message: `O Canal "${title}" já está cadastrado`,
+                type: 'error',
+            }
         }
 
-        const newChannel = Object.assign(new Channel(), channel);
+        const channelToSave = Object.assign(new Channel(), channel)
 
-        return await this.channelRepository.save(newChannel);
-    }
+        const newChannel = await this.channelRepository.save(channelToSave)
 
-    async updateChannel(channel: UpdateChannelDTO): Promise<Channel> {
-        
-        const id: number = channel.id;
-
-        const channelFound = await this.channelRepository.findOne({ id });
-
-        if (!channelFound) {
-            throw new NotFoundException(`Canal com ID "${id}" não encontrado`);
+        if (!newChannel) {
+            return {
+                message: 'Não foi possível realizar essa operação. Tente novamente mais tarde',
+                type: 'error',
+            }
         }
 
-        const updatedChannel = Object.assign(channelFound, channel);
-
-        return await this.channelRepository.save(updatedChannel);
-    }
-
-    async removeChannel(id: number): Promise<Channel> {
-
-        const channelFound = await this.channelRepository.findOne({ id });
-
-        if (!channelFound) {
-            throw new NotFoundException(`Canal com ID "${id}" não encontrado`);
+        return {
+            message: 'Adicionado com sucesso',
+            type: 'success',
+            data: newChannel
         }
-
-        const newChannel = Object.assign(channelFound, {
-            status: 'removido'
-        });
-
-        return await this.channelRepository.save(newChannel);
 
     }
 
-    async permanentlyDeleteChannel(id: number): Promise<any> {
+    async updateChannel(channel: UpdateChannelDTO | Channel): Promise<ResDTO> {
 
-        const channelFound = await this.channelRepository.findOne({ id });
+        const id: number = channel.id
+
+        const channelFound = await this.channelRepository.findOne({ id })
 
         if (!channelFound) {
-            throw new NotFoundException(`Canal com ID "${id}" não encontrado`);
+            return {
+                message: `Canal com ID "${id}" não encontrado`,
+                type: 'error',
+            }
         }
 
-        await this.channelRepository.delete(id);
+        const channelToSave = Object.assign(channelFound, channel)
 
-        const ChannelDeleted = await this.channelRepository.findOne({ id });
+        const updatedChannel = await this.channelRepository.save(channelToSave)
+
+        if (!updatedChannel) {
+            return {
+                message: 'Não foi possível realizar essa operação. Tente novamente mais tarde',
+                type: 'error',
+                data: updatedChannel
+            }
+        }
+
+        return {
+            message: 'Atualizado com sucesso',
+            type: 'success',
+            data: updatedChannel
+        }
+
+
+    }
+
+    async removeChannel(id: number, account: number): Promise<ResDTO> {
+
+        const channelFound = await this.channelRepository.findOne({ id })
+
+        if (!channelFound) {
+            return {
+                message: `Canal com ID "${id}" não encontrado`,
+                type: 'error',
+            }
+        }
+
+        const channelToSave = Object.assign(channelFound, {
+            status: 'removido',
+            account: account
+        })
+
+        const updatedChannel = await this.channelRepository.save(channelToSave)
+
+        if (!updatedChannel) {
+            return {
+                message: 'Não foi possível realizar essa operação. Tente novamente mais tarde',
+                type: 'error',
+                data: updatedChannel
+            }
+        }
+
+        return {
+            message: 'Removido com sucesso',
+            type: 'success',
+            data: updatedChannel
+        }
+
+    }
+
+    async permanentlyDeleteChannel(id: number, account: number): Promise<ResDTO> {
+
+        const channelFound = await this.channelRepository.findOne({ id })
+
+        if (!channelFound) {
+            return {
+                message: `Canal com ID "${id}" não encontrado`,
+                type: 'error',
+            }
+        }
+
+        await this.channelRepository.delete(id)
+
+        const ChannelDeleted = await this.channelRepository.findOne({ id })
 
         if (ChannelDeleted) {
-            return JSON.stringify({
+            return {
                 message: `Não foi possível deletar o canal com ID "${id}"`,
                 type: 'error',
-            });
+            }
         }
 
-        await FileSystemUtils.remove(`./${files.channelThumbnailDirectory}/${channelFound.imageUrl}`);
+        await FileSystemUtils.remove(`./${files.channelThumbnailDirectory}/${channelFound.imageUrl}`)
 
-        return JSON.stringify({
+        return {
             message: 'Deletado com sucesso',
             type: 'success',
-        });
+        }
     }
 
-    async changeThumbnail(id: number, file: string): Promise<Channel> {
-        const channel = await this.getByID(id);
-            
-        await FileSystemUtils.remove(`./${files.channelThumbnailDirectory}/${channel.imageUrl}`);
+    async changeThumbnail(params: { id: number, file: string, account: number }): Promise<ResDTO> {
 
-        channel.imageUrl =  file;
+        const channel = await this.channelRepository.findOne(params.id);
+        
+        if (!channel) {
+            return {
+                message: 'Canal não encontrado',
+                type: 'error'
+            };
+        }
 
-        return await this.updateChannel(channel);
+        if (channel.imageUrl) {
+            await FileSystemUtils.remove(`./${files.channelThumbnailDirectory}/${channel.imageUrl}`)
+        }
+
+        const channelToUpdate: Channel = Object.assign(new Channel(), {
+            id: channel.id,
+            title: channel.title,
+            imageUrl: params.file,
+            account: params.account
+        })
+
+        const updatedChannel = await this.channelRepository.save(channelToUpdate)
+
+        if (!updatedChannel) {
+            return {
+                type: 'error',
+                message: 'Não foi possível realizar essa operação. Tente novamente mais tarde',
+                data: updatedChannel
+            }
+        }
+
+        return {
+            type: 'success',
+            message: 'Operação realizada com sucesso',
+            data: updatedChannel
+        }
     }
 }

@@ -17,4 +17,8 @@ export class UpdateChannelDTO {
     @IsOptional()
     @IsString()
     status?: string;
+
+    @IsOptional()
+    @IsNumber()
+    account: number;
 }

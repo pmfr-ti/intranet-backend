@@ -4,5 +4,5 @@ export class ResDTO {
 
     message?: string;
 
-    data: any;
+    data?: any;
 }

@@ -6,4 +6,5 @@ export class PaginationDTO {
     };
     pageSize?: number;
     skip?: number;
+    status?: string;
 }

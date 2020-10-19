@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, isNotEmpty, IsNumber } from 'class-validator';
 
 export class AddChannelDTO {
 
@@ -13,4 +13,8 @@ export class AddChannelDTO {
     @IsOptional()
     @IsString()
     status?: string;
+
+    @IsOptional()
+    @IsNumber()
+    account: number;
 }

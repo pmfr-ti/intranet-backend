@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, UsePipes, ValidationPipe, Logger, UseGuards, UseInterceptors, UploadedFile, Res, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UsePipes, ValidationPipe, Logger, UseGuards, UseInterceptors, UploadedFile, Res, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ValidationParametersPipe } from 'src/shared/pipes/validation-parameters.pipe';
 import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
@@ -6,8 +6,9 @@ import { AppController } from 'src/app.controller';
 import { ChannelService } from './channel.service';
 import { Channel } from './entities/channel.entity';
 import { AddChannelDTO, UpdateChannelDTO, FindChannelDTO } from './dto';
-import { files, channelThumbnailStorage } from 'src/configs/storage.config';
-import { PaginationDTO } from 'src/shared/dto';
+import { channelThumbnailStorage } from 'src/configs/storage.config';
+import { PaginationDTO, ResDTO } from 'src/shared/dto';
+import { User } from 'src/shared/decorators/user.decorator';
 
 @Controller('api/admin/channel')
 @UseGuards(JwtAuthGuard)
@@ -18,7 +19,9 @@ export class ChannelAdminController {
     constructor(private channelService: ChannelService) { }
 
     @Post('list')
-    async listChannel(@Body() findChannel: FindChannelDTO): Promise<Channel[] | null> {
+    async listChannel(
+        @Body() findChannel: FindChannelDTO
+    ): Promise<Channel[] | null> {
         if (findChannel) { return await this.channelService.fetchAll(findChannel) }
 
         return await this.channelService.fetchAll({ status: 'ativo' });
@@ -30,50 +33,83 @@ export class ChannelAdminController {
     }
 
     @Post('get/:id')
-    async getChannel(@Param('id', ValidationParametersPipe) id: number): Promise<Channel> {
+    async getChannel(@Param('id', ValidationParametersPipe) id: number): Promise<ResDTO> {
         return await this.channelService.getByID(id);
     }
 
     @Post('add')
     @UsePipes(ValidationPipe)
     async addChannel(
+        @User() user: any,
         @Body() channel: AddChannelDTO,
-    ): Promise<Channel | null> {
+    ): Promise<ResDTO> {
+        if (!user) {
+            throw new BadRequestException(`Id da conta inválida ou não fornecida`);
+        }
+        channel.account = user.id;
         return await this.channelService.addChannel(channel);
+
     }
 
     @Post('update')
     @UsePipes(ValidationPipe)
     async updateChannel(
+        @User() user: any,
         @Body() channel: UpdateChannelDTO
-    ): Promise<Channel> {
-
+    ): Promise<ResDTO> {
+        if (!user) {
+            throw new BadRequestException(`Id da conta inválida ou não fornecida`);
+        }
+        channel.account = user.id;
         return await this.channelService.updateChannel(channel);
     }
 
     @Post('remove/:id')
-    async removeChannel(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.channelService.removeChannel(id);
+    async removeChannel(
+        @User() user: any,
+        @Param('id', ValidationParametersPipe
+        ) id: number): Promise<ResDTO> {
+        if (!user) {
+            throw new BadRequestException(`Id da conta inválida ou não fornecida`);
+        }
+        return await this.channelService.removeChannel(id, user.id);
     }
 
     @Post('delete/:id')
-    async permanentlyDeleteChannel(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.channelService.permanentlyDeleteChannel(id);
+    async permanentlyDeleteChannel(
+        @User() user: any,
+        @Param('id', ValidationParametersPipe) id: number
+    ): Promise<ResDTO> {
+
+        if (!user) {
+            throw new BadRequestException(`Id da conta inválida ou não fornecida`);
+        }
+
+        return await this.channelService.permanentlyDeleteChannel(id, user.id);
     }
 
-    @Post('upload-thumbnail/:id')
+    @Post('upload-thumbnail')
     @UsePipes(ValidationPipe)
     @UseInterceptors(FileInterceptor('file', channelThumbnailStorage))
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async uploadThumbnail(
-        @Param('id', ValidationParametersPipe) id: number,
-        @UploadedFile() file
-    ): Promise<Channel> {
+        @User() user: any,
+        @UploadedFile() file,
+        @Body() body: any
+    ): Promise<ResDTO> {
 
-        if (!file || !file.filename) {
-            throw new BadRequestException(`Arquivo inválido`);   
+        if (!user) {
+            throw new BadRequestException(`Id da conta inválida ou não fornecida`);
         }
 
-        return this.channelService.changeThumbnail(id, file.filename);
+        if (!file || !file.filename || !body.id) {
+            throw new BadRequestException(`Arquivo inválido`);
+        }
+
+        return this.channelService.changeThumbnail({
+            id: body.id,
+            file: file.filename,
+            account: user.id
+        });
     }
 }
