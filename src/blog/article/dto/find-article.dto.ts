@@ -9,6 +9,10 @@ export class FindArticleDTO {
     @IsOptional()
     @IsString()
     title?: string;
+    
+    @IsOptional()
+    @IsString()
+    imageUrl?: string;
 
     @IsOptional()
     @IsString()

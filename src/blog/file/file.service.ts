@@ -59,7 +59,7 @@ export class FileService {
 
     }
 
-    async permanentlyDeleteFile(id: number): Promise<any> {
+    async permanentlyDelete(id: number): Promise<any> {
 
         const fileFound = await this.fileRepository.findOne({ id });
 

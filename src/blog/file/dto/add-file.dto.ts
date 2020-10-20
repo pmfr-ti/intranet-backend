@@ -15,10 +15,6 @@ export class AddFileDTO {
     description: string;
 
     @IsOptional()
-    @IsDate()
-    postedAt: Date;
-
-    @IsOptional()
     @IsString()
     url: string = null;
 

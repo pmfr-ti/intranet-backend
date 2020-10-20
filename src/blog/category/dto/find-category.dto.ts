@@ -12,5 +12,9 @@ export class FindCategoryDTO {
 
     @IsOptional()
     @IsString()
+    imageUrl?: string;
+
+    @IsOptional()
+    @IsString()
     status?: string;
 }

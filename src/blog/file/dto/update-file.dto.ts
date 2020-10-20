@@ -19,10 +19,6 @@ export class UpdateFileDTO {
     description: string;
 
     @IsOptional()
-    @IsDate()
-    postedAt: Date;
-
-    @IsOptional()
     @IsString()
     url: string = null;
 

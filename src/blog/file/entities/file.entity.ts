@@ -1,5 +1,5 @@
 import { Article } from 'src/blog/article/entities/article.entity';
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, ManyToOne, BeforeUpdate } from 'typeorm';
 
 @Entity()
 export class File {
@@ -16,9 +16,6 @@ export class File {
     @Column(({ type: 'varchar', width: 400 }))
     description: string;
 
-    @Column(({ type: 'datetime' }))
-    postedAt: Date;
-
     @Column(({ type: 'int' }))
     size: number;
 
@@ -34,9 +31,9 @@ export class File {
     @ManyToOne(type => Article, article => article.files)
     article: Article;
 
-    @BeforeInsert()
-    setPostedAt(): void {
-        if (!this.postedAt) { this.postedAt = new Date() }
+    @BeforeUpdate()
+    setUpdatedAt(): void {
+        this.updatedAt = new Date();
     }
 
 }

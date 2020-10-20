@@ -48,9 +48,9 @@ export class AccountsController {
     }
 
     @Post('delete/:id')
-    async permanentlyDeleteAccount(
+    async permanentlyDelete(
         @Param('id', ValidationParametersPipe) id: number
     ): Promise<any> {
-        return await this.accountsService.permanentlyDeleteAccount(id);
+        return await this.accountsService.permanentlyDelete(id);
     }
 }

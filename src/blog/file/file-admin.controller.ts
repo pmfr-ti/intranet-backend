@@ -51,8 +51,8 @@ export class FileAdminController {
     }
 
     @Post('delete/:id')
-    async permanentlyDeleteFile(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.fileService.permanentlyDeleteFile(id);
+    async permanentlyDelete(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
+        return await this.fileService.permanentlyDelete(id);
     }
 
     @Post('upload-attach/:id')

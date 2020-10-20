@@ -8,6 +8,7 @@ import { Article } from './entities/article.entity';
 import { AddArticleDTO, FindArticleDTO, UpdateArticleDTO } from './dto';
 import { articleThumbnailStorage, files } from 'src/configs/storage.config';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ResDTO } from 'src/shared/dto';
 
 @Controller('api/article')
 export class ArticleController {
@@ -24,33 +25,23 @@ export class ArticleController {
     } 
 
     @Post('get/:id')
-    async getArticle(@Param('id', ValidationParametersPipe) id: number): Promise<Article> {
+    async getArticle(@Param('id', ValidationParametersPipe) id: number): Promise<ResDTO> {
         return await this.articleService.getByID(id);
     }
 
 
-    @Get('thumbnail/:id')
+    @Get('thumbnail/:imageUrl')
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async getThumbnail(
-        @Param('id', ValidationParametersPipe) id: number,
+        @Param('imageUrl', ValidationParametersPipe) imageUrl: string,
         @Res() res
-    ): Promise<any> {
-        return await res.sendFile(id, { root: files.articleThumbnailDirectory});
-    }
-    @Post('admin/upload-thumbnail/:id')
-    @UseGuards(JwtAuthGuard)
-    @UsePipes(ValidationPipe)
-    @UseInterceptors(FileInterceptor('file', articleThumbnailStorage))
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    async uploadThumbnail(
-        @Param('id', ValidationParametersPipe) id: number,
-        @UploadedFile() file
-    ): Promise<Article> {
+    ): Promise<any> { 
+        const isValid = await this.articleService.find({ imageUrl: imageUrl });
 
-        if (!file || !file.filename) {
-            throw new BadRequestException(`Arquivo inválido`);   
+        if (!isValid) {
+            throw new BadRequestException("Requisição inválida");
         }
 
-        return this.articleService.changeThumbnail(id, file.filename);
+        return await res.sendFile(imageUrl, { root: files.articleThumbnailDirectory });
     }
 }

@@ -1,6 +1,6 @@
 import { Account } from 'src/accounts/entities/account.entity';
 import { Article } from 'src/blog/article/entities/article.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, BeforeUpdate } from 'typeorm';
 
 @Entity()
 export class Channel {
@@ -29,4 +29,9 @@ export class Channel {
     @OneToMany(type => Article, article => article.channel)
     articles: Article[]
 
+    @BeforeUpdate()
+    setUpdatedAt(): void {
+        this.updatedAt = new Date();
+    }
+    
 }

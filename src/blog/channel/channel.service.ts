@@ -19,6 +19,10 @@ export class ChannelService {
         return await this.channelRepository.find({ where: by })
     }
 
+    async find(by: FindChannelDTO): Promise<Channel> {
+        return await this.channelRepository.findOne({ where: by })
+    }
+
     async paginate(query: PaginationDTO): Promise<any> {
 
         const pageSize = query.pageSize || 10
@@ -47,6 +51,7 @@ export class ChannelService {
     }
 
     async getByID(id: number): Promise<ResDTO> {
+        
         const channel = await this.channelRepository.findOne({ id })
 
         if (!channel) {
@@ -67,13 +72,11 @@ export class ChannelService {
 
     async addChannel(channel: AddChannelDTO): Promise<ResDTO> {
 
-        const { title } = channel
-
-        const isChannelFound = await this.channelRepository.findOne({ title })
+        const isChannelFound = await this.channelRepository.findOne({ title: channel.title })
 
         if (isChannelFound) {
             return {
-                message: `O Canal "${title}" já está cadastrado`,
+                message: `O Canal "${ channel.title }" já está cadastrado`,
                 type: 'error',
             }
         }
@@ -99,13 +102,11 @@ export class ChannelService {
 
     async updateChannel(channel: UpdateChannelDTO | Channel): Promise<ResDTO> {
 
-        const id: number = channel.id
-
-        const channelFound = await this.channelRepository.findOne({ id })
+        const channelFound = await this.channelRepository.findOne({ id: channel.id })
 
         if (!channelFound) {
             return {
-                message: `Canal com ID "${id}" não encontrado`,
+                message: `Canal com ID "${ channel.id }" não encontrado`,
                 type: 'error',
             }
         }
@@ -127,8 +128,6 @@ export class ChannelService {
             type: 'success',
             data: updatedChannel
         }
-
-
     }
 
     async removeChannel(id: number, account: number): Promise<ResDTO> {
@@ -162,10 +161,42 @@ export class ChannelService {
             type: 'success',
             data: updatedChannel
         }
-
     }
 
-    async permanentlyDeleteChannel(id: number, account: number): Promise<ResDTO> {
+    async restoreChannel(id: number, account: number): Promise<ResDTO> {
+
+        const channelFound = await this.channelRepository.findOne({ id })
+
+        if (!channelFound) {
+            return {
+                message: `Canal com ID "${id}" não encontrado`,
+                type: 'error',
+            }
+        }
+
+        const channelToSave = Object.assign(channelFound, {
+            status: 'ativo',
+            account: account
+        })
+
+        const updatedChannel = await this.channelRepository.save(channelToSave)
+
+        if (!updatedChannel) {
+            return {
+                message: 'Não foi possível realizar essa operação. Tente novamente mais tarde',
+                type: 'error',
+                data: updatedChannel
+            }
+        }
+
+        return {
+            message: 'Restaurado com sucesso',
+            type: 'success',
+            data: updatedChannel
+        }
+    }
+
+    async permanentlyDelete(id: number, account: number): Promise<ResDTO> {
 
         const channelFound = await this.channelRepository.findOne({ id })
 
@@ -198,7 +229,7 @@ export class ChannelService {
     async changeThumbnail(params: { id: number, file: string, account: number }): Promise<ResDTO> {
 
         const channel = await this.channelRepository.findOne(params.id);
-        
+
         if (!channel) {
             return {
                 message: 'Canal não encontrado',

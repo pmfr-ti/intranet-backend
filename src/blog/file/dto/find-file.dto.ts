@@ -19,10 +19,6 @@ export class FindFileDTO {
     description?: string;
 
     @IsOptional()
-    @IsDate()
-    postedAt?: Date;
-
-    @IsOptional()
     @IsString()
     status?: string;
 }

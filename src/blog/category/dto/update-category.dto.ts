@@ -12,5 +12,13 @@ export class UpdateCategoryDTO {
 
     @IsOptional()
     @IsString()
+    imageUrl: string;
+
+    @IsOptional()
+    @IsString()
     status?: string;
+
+    @IsOptional()
+    @IsNumber()
+    account: number;
 }

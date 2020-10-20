@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 
 export class AddCategoryDTO {
 
@@ -8,5 +8,13 @@ export class AddCategoryDTO {
 
     @IsOptional()
     @IsString()
+    imageUrl: string = null;
+
+    @IsOptional()
+    @IsString()
     status?: string;
+
+    @IsOptional()
+    @IsNumber()
+    account: number;
 }

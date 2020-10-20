@@ -77,7 +77,7 @@ export class AccountsService {
 
     }
 
-    async permanentlyDeleteAccount(id: number): Promise<any> {
+    async permanentlyDelete(id: number): Promise<any> {
 
         let accountFound = await this.accountsRepository.findOne({ id });
 

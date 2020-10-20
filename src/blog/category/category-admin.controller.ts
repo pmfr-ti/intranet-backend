@@ -1,73 +1,110 @@
-import { Controller, Post, Get, Body, Param, UsePipes, ValidationPipe, Logger, UseGuards, UseInterceptors, UploadedFile, BadRequestException, Res } from '@nestjs/common';
-import { ValidationParametersPipe } from 'src/shared/pipes/validation-parameters.pipe';
-import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
-import { AppController } from 'src/app.controller';
-import { CategoryService } from './category.service';
-import { Category } from './entities/category.entity';
-import { AddCategoryDTO, UpdateCategoryDTO, FindCategoryDTO } from './dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { files, categoryThumbnailStorage } from 'src/configs/storage.config';
+import { Controller, Post, Get, Body, Param, UsePipes, ValidationPipe, Logger, UseGuards, UseInterceptors, UploadedFile, Res, BadRequestException, UnauthorizedException } from '@nestjs/common'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { ValidationParametersPipe } from 'src/shared/pipes/validation-parameters.pipe'
+import { JwtAuthGuard } from 'src/auth/guards/auth.guard'
+import { AppController } from 'src/app.controller'
+import { CategoryService } from './category.service'
+import { AddCategoryDTO, UpdateCategoryDTO } from './dto'
+import { categoryThumbnailStorage } from 'src/configs/storage.config'
+import { PaginationDTO, ResDTO } from 'src/shared/dto'
+import { User } from 'src/shared/decorators/user.decorator'
+import { AuthDTO } from 'src/auth/dto'
 
 @Controller('api/admin/category')
 @UseGuards(JwtAuthGuard)
 export class CategoryAdminController {
 
-    private logger = new Logger(AppController.name);
+    private logger = new Logger(AppController.name)
 
     constructor(private categoryService: CategoryService) { }
 
-    @Post('list')
-    async listCategory(@Body() findCategory: FindCategoryDTO): Promise<Category[] | null> {
-        if (findCategory) { return await this.categoryService.fetchAll(findCategory) }
-
-        return await this.categoryService.fetchAll({ status: 'ativo' });
+    @Post('paginate')
+    async findAllCategory(@Body() searchParams: PaginationDTO): Promise<any | null> {
+        return await this.categoryService.paginate(searchParams)
     }
 
     @Post('get/:id')
-    async getCategory(@Param('id', ValidationParametersPipe) id: number): Promise<Category> {
-        return await this.categoryService.getByID(id);
+    async getCategory(@Param('id', ValidationParametersPipe) id: number): Promise<ResDTO> {
+        return await this.categoryService.getByID(id)
     }
 
     @Post('add')
     @UsePipes(ValidationPipe)
     async addCategory(
+        @User() user: AuthDTO,
         @Body() category: AddCategoryDTO,
-    ): Promise<Category | null> {
-        return await this.categoryService.addCategory(category);
+    ): Promise<ResDTO> {
+
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        category.account = user.id
+        return await this.categoryService.addCategory(category)
     }
 
     @Post('update')
     @UsePipes(ValidationPipe)
     async updateCategory(
+        @User() user: AuthDTO,
         @Body() category: UpdateCategoryDTO
-    ): Promise<Category> {
+    ): Promise<ResDTO> {
 
-        return await this.categoryService.updateCategory(category);
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        category.account = user.id
+        return await this.categoryService.updateCategory(category)
     }
 
     @Post('remove/:id')
-    async removeCategory(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.categoryService.removeCategory(id);
+    async removeCategory(
+        @User() user: AuthDTO,
+        @Param('id', ValidationParametersPipe
+        ) id: number): Promise<ResDTO> {
+
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        return await this.categoryService.removeCategory(id, user.id)
+    }
+
+    @Post('restore/:id')
+    async restoreCategory(
+        @User() user: AuthDTO,
+        @Param('id', ValidationParametersPipe
+        ) id: number): Promise<ResDTO> {
+
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        return await this.categoryService.restoreCategory(id, user.id)
     }
 
     @Post('delete/:id')
-    async permanentlyDeleteCategory(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.categoryService.permanentlyDeleteCategory(id);
+    async permanentlyDelete(
+        @User() user: AuthDTO,
+        @Param('id', ValidationParametersPipe) id: number
+    ): Promise<ResDTO> {
+
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        return await this.categoryService.permanentlyDelete(id, user.id)
     }
 
-    @Post('upload-thumbnail/:id')
+    @Post('upload-thumbnail')
     @UsePipes(ValidationPipe)
     @UseInterceptors(FileInterceptor('file', categoryThumbnailStorage))
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async uploadThumbnail(
-        @Param('id', ValidationParametersPipe) id: number,
-        @UploadedFile() file
-    ): Promise<Category> {
+        @User() user: AuthDTO,
+        @UploadedFile() file,
+        @Body() body: any
+    ): Promise<ResDTO> {
 
-        if (!file || !file.filename) {
-            throw new BadRequestException(`Arquivo inválido`);   
-        }
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
 
-        return this.categoryService.changeThumbnail(id, file.filename);
+        if (!file || !file.filename || !body.id) { throw new BadRequestException(`Arquivo inválido`) }
+
+        return this.categoryService.changeThumbnail({
+            id: body.id,
+            file: file.filename,
+            account: user.id
+        })
     }
 }

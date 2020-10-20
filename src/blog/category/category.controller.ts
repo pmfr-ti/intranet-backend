@@ -1,14 +1,14 @@
-import { Controller, Post, Get, Body, Param, UsePipes, ValidationPipe, Logger, UseGuards, UseInterceptors, UploadedFile, BadRequestException, Res } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Logger, Res, BadRequestException } from '@nestjs/common';
 import { ValidationParametersPipe } from 'src/shared/pipes/validation-parameters.pipe';
-import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 import { AppController } from 'src/app.controller';
 import { CategoryService } from './category.service';
 import { Category } from './entities/category.entity';
-import { AddCategoryDTO, UpdateCategoryDTO, FindCategoryDTO } from './dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { files, categoryThumbnailStorage } from 'src/configs/storage.config';
+import { FindCategoryDTO } from './dto';
+import { files } from 'src/configs/storage.config';
+import { ResDTO } from 'src/shared/dto';
 
 @Controller('api/category')
+// @UseGuards(JwtAuthGuard)
 export class CategoryController {
 
     private logger = new Logger(AppController.name);
@@ -23,17 +23,22 @@ export class CategoryController {
     }
 
     @Post('get/:id')
-    async getCategory(@Param('id', ValidationParametersPipe) id: number): Promise<Category> {
+    async getCategory(@Param('id', ValidationParametersPipe) id: number): Promise<ResDTO> {
         return await this.categoryService.getByID(id);
     }
 
-    @Get('thumbnail/:id')
+    @Get('thumbnail/:imageUrl')
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async getThumbnail(
-        @Param('id', ValidationParametersPipe) id: number,
+        @Param('imageUrl', ValidationParametersPipe) imageUrl: string,
         @Res() res
     ): Promise<any> {
-        return await res.sendFile(id, { root: files.categoryThumbnailDirectory});
-    }
+        const isValid = await this.categoryService.find({ imageUrl: imageUrl });
 
+        if (!isValid) {
+            throw new BadRequestException("Requisição inválida");
+        }
+
+        return await res.sendFile(imageUrl, { root: files.categoryThumbnailDirectory });
+    }
 }

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeUpdate } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Article } from 'src/blog/article/entities/article.entity';
 import { Channel } from 'src/blog/channel/entities/channel.entity';
@@ -58,5 +58,10 @@ export class Account {
 
     isActive(): boolean {
         return this.status === 'ativo' ? true : false;
+    }
+
+    @BeforeUpdate()
+    setUpdatedAt(): void {
+        this.updatedAt = new Date();
     }
 }

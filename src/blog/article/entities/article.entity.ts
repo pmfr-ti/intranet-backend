@@ -2,7 +2,7 @@ import { Account } from 'src/accounts/entities/account.entity';
 import { Category } from 'src/blog/category/entities/category.entity';
 import { Channel } from 'src/blog/channel/entities/channel.entity';
 import { File } from 'src/blog/file/entities/file.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, BeforeUpdate } from 'typeorm';
 
 @Entity()
 export class Article {
@@ -54,5 +54,10 @@ export class Article {
 
     @OneToMany(type => File, file => file.article)
     files: File[]
+
+    @BeforeUpdate()
+    setUpdatedAt(): void {
+        this.updatedAt = new Date();
+    }
 }
 

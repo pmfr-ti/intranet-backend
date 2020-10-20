@@ -8,6 +8,9 @@ import { Article } from './entities/article.entity';
 import { AddArticleDTO, FindArticleDTO, UpdateArticleDTO } from './dto';
 import { articleThumbnailStorage, files } from 'src/configs/storage.config';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { PaginationDTO, ResDTO } from 'src/shared/dto';
+import { User } from 'src/shared/decorators/user.decorator';
+import { AuthDTO } from 'src/auth/dto';
 
 @Controller('api/admin/article')
 @UseGuards(JwtAuthGuard)
@@ -17,59 +20,93 @@ export class ArticleAdminController {
 
     constructor(private articleService: ArticleService) { }
 
-    @Post('list')
-    async listArticle(@Body() findArticle: FindArticleDTO): Promise<Article[] | null> {
-        if (findArticle) { return await this.articleService.fetchAll(findArticle) }
-
-        return await this.articleService.fetchAll({ status: 'ativo' });
-    } 
+    @Post('paginate')
+    async findAllArticle(@Body() searchParams: PaginationDTO): Promise<any | null> {
+        return await this.articleService.paginate(searchParams)
+    }
 
     @Post('get/:id')
-    async getArticle(@Param('id', ValidationParametersPipe) id: number): Promise<Article> {
-        return await this.articleService.getByID(id);
+    async getArticle(@Param('id', ValidationParametersPipe) id: number): Promise<ResDTO> {
+        return await this.articleService.getByID(id)
     }
 
     @Post('add')
     @UsePipes(ValidationPipe)
     async addArticle(
+        @User() user: AuthDTO,
         @Body() article: AddArticleDTO,
-    ): Promise<Article | null> {
-        //return null;
-        return await this.articleService.addArticle(article);
+    ): Promise<ResDTO> {
+
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        article.account = user.id
+        return await this.articleService.addArticle(article)
     }
 
     @Post('update')
     @UsePipes(ValidationPipe)
     async updateArticle(
+        @User() user: AuthDTO,
         @Body() article: UpdateArticleDTO
-    ): Promise<Article> {
+    ): Promise<ResDTO> {
 
-        return await this.articleService.updateArticle(article);
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        article.account = user.id
+        return await this.articleService.updateArticle(article)
     }
 
     @Post('remove/:id')
-    async removeArticle(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.articleService.removeArticle(id);
+    async removeArticle(
+        @User() user: AuthDTO,
+        @Param('id', ValidationParametersPipe
+        ) id: number): Promise<ResDTO> {
+
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        return await this.articleService.removeArticle(id, user.id)
+    }
+
+    @Post('restore/:id')
+    async restoreArticle(
+        @User() user: AuthDTO,
+        @Param('id', ValidationParametersPipe
+        ) id: number): Promise<ResDTO> {
+
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        return await this.articleService.restoreArticle(id, user.id)
     }
 
     @Post('delete/:id')
-    async permanentlyDeleteArticle(@Param('id', ValidationParametersPipe) id: number): Promise<any> {
-        return await this.articleService.permanentlyDeleteArticle(id);
+    async permanentlyDelete(
+        @User() user: AuthDTO,
+        @Param('id', ValidationParametersPipe) id: number
+    ): Promise<ResDTO> {
+
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
+
+        return await this.articleService.permanentlyDelete(id, user.id)
     }
 
-    @Post('upload-thumbnail/:id')
+    @Post('upload-thumbnail')
     @UsePipes(ValidationPipe)
     @UseInterceptors(FileInterceptor('file', articleThumbnailStorage))
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     async uploadThumbnail(
-        @Param('id', ValidationParametersPipe) id: number,
-        @UploadedFile() file
-    ): Promise<Article> {
+        @User() user: AuthDTO,
+        @UploadedFile() file,
+        @Body() body: any
+    ): Promise<ResDTO> {
 
-        if (!file || !file.filename) {
-            throw new BadRequestException(`Arquivo inválido`);   
-        }
+        if (!user) { throw new BadRequestException(`Id da conta inválida ou não fornecida`) }
 
-        return this.articleService.changeThumbnail(id, file.filename);
+        if (!file || !file.filename || !body.id) { throw new BadRequestException(`Arquivo inválido`) }
+
+        return this.articleService.changeThumbnail({
+            id: body.id,
+            file: file.filename,
+            account: user.id
+        })
     }
 }
