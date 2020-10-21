@@ -1,9 +1,8 @@
 ### ACCOUNT
 
-### List
-POST /api/admin/category/list HTTP/1.1
-Host: localhost:3000
-Authorization: Bearer 
+### Public List
+POST /api/category/list HTTP/1.1
+Host: localhost:3000 
 
 ### Add
 POST /api/admin/category/add HTTP/1.1
@@ -40,3 +39,22 @@ Authorization: Bearer
 POST /api/admin/category/delete/1 HTTP/1.1
 Host: localhost:3000
 Authorization: Bearer 
+
+
+### Get Thumbnail
+POST /api/category/thumbnail/test-1600177653355.png HTTP/1.1
+Host: localhost:3000
+
+
+### Upload Thumbnail
+POST /api/admin/category/upload-thumbnail/1 HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer 
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.png"
+Content-Type: image/png
+
+< ./files/test.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
