@@ -112,7 +112,7 @@ export class ArticleService {
         }
 
         return {
-            message: 'Adicionado com sucesso',
+            message: 'Atualizado com sucesso',
             type: 'success',
             data: updatedArticle
         }

@@ -30,7 +30,7 @@ export class AddArticleDTO {
     @IsBoolean()
     featured?: boolean;
     
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
     account: number;
 

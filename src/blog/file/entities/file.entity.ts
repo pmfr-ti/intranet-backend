@@ -1,5 +1,5 @@
 import { Article } from 'src/blog/article/entities/article.entity';
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, ManyToOne, BeforeUpdate } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, ManyToOne, BeforeUpdate, RelationId } from 'typeorm';
 
 @Entity()
 export class File {
@@ -30,6 +30,9 @@ export class File {
 
     @ManyToOne(type => Article, article => article.files)
     article: Article;
+
+    @RelationId((file: File) => file.article)
+    articleId: number;
 
     @BeforeUpdate()
     setUpdatedAt(): void {

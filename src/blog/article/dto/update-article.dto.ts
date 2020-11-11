@@ -38,7 +38,7 @@ export class UpdateArticleDTO {
     @IsBoolean()
     featured?: boolean;
     
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
     account: number;
 
